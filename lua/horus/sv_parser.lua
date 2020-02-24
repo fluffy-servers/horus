@@ -3,8 +3,18 @@ handlers['player_one'] = function(arg, caller)
     local res = {}
     print(arg)
     if arg == '^' then
+        -- Use ^ as shorthand for self-inflicted commands
         res = {caller}
+    elseif string.StartWith(arg, "steam_0:") then
+        -- Find players with specific steam ID
+        local p = player.GetBySteamID(arg)
+        if p then
+            res = {p}
+        else
+            return faslse, 'SteamID not found'
+        end
     else
+        -- Find all players with names matching the argument
         for k,v in pairs(player.GetAll()) do
             print(v:Nick():lower(), arg)
             if string.find(v:Nick():lower(), arg) then
@@ -13,8 +23,7 @@ handlers['player_one'] = function(arg, caller)
         end
     end
 
-    print(res)
-
+    -- Check validity of arguments
     if #res == 0 then return false, 'No matching player found' end
     if #res > 1 then return false, 'More than one player matched!' end
     if !horus:cantarget(caller, res[1]) then return false, 'You cannot target that player!' end
