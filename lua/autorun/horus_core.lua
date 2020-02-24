@@ -23,14 +23,13 @@ end
 
 -- Fix this it's awful
 function horus:split(str)
-	-- Check if the string starts with a quote
-	local quote = !(string.Left(str, 1) == '"')
+    str = str:lower()
 	local tbl = {}
 	
-	-- Split the string into quotes
-	for chunk in string.gmatch(str, '[^"]+') do	-- i barely know regex
+	-- Split the string arguments
+    local quote = true
+	for chunk in string.gmatch(str, '[^"]+') do	
 		quote = not quote
-		-- Alternate between adding the quoted blocks and adding the spaced words
 		if quote then
 			table.insert(tbl, chunk)
 		else
@@ -39,7 +38,7 @@ function horus:split(str)
 			end
 		end
 	end
-	
+    
 	return tbl
 end
 
