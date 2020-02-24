@@ -112,6 +112,7 @@ end
 function horus:sendperms(ply, rank, isadmin, issuper)
     if !IsValid(ply) then return end
     if !ply:IsPlayer() then return end
+    if ply:IsBot() then return end
 
     -- hi my name is Robert and I love edge cases
     local rank_table = {}
