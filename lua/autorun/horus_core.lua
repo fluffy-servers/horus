@@ -10,6 +10,39 @@ function horus.command(name, help, args, func)
     horus.commands[name] = {args = args, func = func, help = help}
 end
 
+-- Load all the command plugins from the folder
+function horus:loadCommands()
+    local path = 'horus/commands/'
+
+	local files, folders = file.Find(path .. '*.lua', 'LUA')
+	for k,v in pairs(files) do
+		if SERVER then AddCSLuaFile(path .. v) end
+		include(path .. v)
+	end
+end
+
+-- Fix this it's awful
+function horus:split(str)
+	-- Check if the string starts with a quote
+	local quote = !(string.Left(str, 1) == '"')
+	local tbl = {}
+	
+	-- Split the string into quotes
+	for chunk in string.gmatch(str, '[^"]+') do	-- i barely know regex
+		quote = not quote
+		-- Alternate between adding the quoted blocks and adding the spaced words
+		if quote then
+			table.insert(tbl, chunk)
+		else
+			for chunk2 in string.gmatch(chunk, '%S+') do
+				table.insert(tbl, chunk2)
+			end
+		end
+	end
+	
+	return tbl
+end
+
 -- Load the client/server init files
 -- This file acts as a basic shared init
 if SERVER then
@@ -18,3 +51,4 @@ if SERVER then
 else
     include('horus/cl_init.lua')
 end
+horus:loadCommands()
