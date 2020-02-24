@@ -1,6 +1,10 @@
 local config = horus.config.database
 horus.ranks = horus.ranks or {}
 
+-- Make sure that the 'user' and 'root' ranks always exist
+horus.ranks['user'] = {}
+horus.ranks['root'] = {}
+
 -- Given a player or rank, check if the target has the given permission
 -- This is a recursive function pls be careful
 function horus:permission(target, perm)
@@ -11,7 +15,7 @@ function horus:permission(target, perm)
     elseif type(target) == 'string' then
         if target == 'root' then
             return true -- Root always has permission
-        elseif !horus.ranks[target]
+        elseif !horus.ranks[target] then
             ErrorNoHalt('Invalid target in Horus permission check')
             return false
         else
@@ -101,6 +105,7 @@ function horus:setrank(ply, rank)
     -- TODO: Database sync
 
     ply:SetUserGroup(rank)
+    horus:sendperms(ply, rank)
 end
 
 -- Send permissions info to clients
@@ -128,9 +133,9 @@ function horus:sendperms(ply, rank, isadmin, issuper)
     local client_ranks = {}
     for k,v in pairs(horus.ranks) do
         client_ranks[k] = {}
-        client_ranks[k].inherits = v.inherits
-        client_ranks[k].isadmin = v.isadmin
-        client_ranks[v].issuper = v.issuper
+        client_ranks[k].inherits = v.inherits or nil
+        client_ranks[k].isadmin = v.isadmin or false
+        client_ranks[k].issuper = v.issuper or false
     end
 
     -- Send all this information to the client
@@ -143,7 +148,7 @@ function horus:sendperms(ply, rank, isadmin, issuper)
 end
 
 -- Load ranks on player connection
-hook.Add('PlayerInitialSpawn', 'Horus_SendRank', function(ply
+hook.Add('PlayerInitialSpawn', 'Horus_SendRank', function(ply)
     if ply:IsListenServerHost() then
         ply:SetUserGroup('root')
         horus:sendperms(ply, 'root')
