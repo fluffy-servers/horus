@@ -2,8 +2,8 @@ local config = horus.config.database
 horus.ranks = horus.ranks or {}
 
 -- Make sure that the 'user' and 'root' ranks always exist
-horus.ranks['user'] = {}
-horus.ranks['root'] = {}
+horus.ranks['user'] = {isadmin = false, issuper = false}
+horus.ranks['root'] = {isadmin = true, issuper = true}
 
 -- Given a player or rank, check if the target has the given permission
 -- This is a recursive function pls be careful
