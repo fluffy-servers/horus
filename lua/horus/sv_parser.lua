@@ -1,7 +1,6 @@
 local handlers = {}
 handlers['player_one'] = function(arg, caller)
     local res = {}
-    print(arg)
     if arg == '^' then
         -- Use ^ as shorthand for self-inflicted commands
         res = {caller}
@@ -16,7 +15,6 @@ handlers['player_one'] = function(arg, caller)
     else
         -- Find all players with names matching the argument
         for k,v in pairs(player.GetAll()) do
-            print(v:Nick():lower(), arg)
             if string.find(v:Nick():lower(), arg) then
                 table.insert(res, v)
             end
@@ -60,7 +58,7 @@ function horus:runcmd(cmd, caller, args, silent)
             if v == '%c' then
                 msg[k] = caller
             elseif string.StartWith(v, '%') then
-                local n =tonumber(string.sub(v, 2))
+                local n = tonumber(string.sub(v, 2))
                 msg[k] = handled[n]
             else
                 msg[k] = ' ' .. v .. ' '
