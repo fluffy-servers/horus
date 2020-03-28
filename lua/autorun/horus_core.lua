@@ -2,7 +2,8 @@ horus = horus or {}
 horus.config = horus.config or {}
 horus.commands = horus.commands or {}
 horus.colors = {
-    -- todo
+    ['orange'] = Color(255, 140, 0),
+	['blue'] = Color(0, 140, 255)
 }
 
 -- Command registration function
@@ -23,7 +24,7 @@ end
 
 -- Fix this it's awful
 function horus:split(str)
-    str = str:lower()
+    --str = str:lower()
 	local tbl = {}
 	
 	-- Split the string arguments
@@ -45,7 +46,10 @@ end
 -- Load the client/server init files
 -- This file acts as a basic shared init
 if SERVER then
-    AddCSLuaFile('horus/cl_init.lua')
+	AddCSLuaFile('horus/cl_init.lua')
+	AddCSLuaFile('horus/cl_autocomplete.lua')
+
+
     include('horus/sv_init.lua')
 else
     include('horus/cl_init.lua')

@@ -1,5 +1,6 @@
-local handlers = {}
-handlers['player_one'] = function(arg, caller)
+horus.handlers = {}
+horus.handlers['player_one'] = function(arg, caller)
+    print(arg)
     local res = {}
     if arg == '^' then
         -- Use ^ as shorthand for self-inflicted commands
@@ -15,7 +16,7 @@ handlers['player_one'] = function(arg, caller)
     else
         -- Find all players with names matching the argument
         for k,v in pairs(player.GetAll()) do
-            if string.find(v:Nick():lower(), arg) then
+            if string.find(v:Nick():lower(), arg:lower()) then
                 table.insert(res, v)
             end
         end
@@ -40,8 +41,8 @@ function horus:runcmd(cmd, caller, args, silent)
     for i=1, #params do
         local p = params[i]
         local r, err
-        if handlers[p] then
-            r, err = handlers[p](args[i], caller)
+        if horus.handlers[p] then
+            r, err = horus.handlers[p](args[i], caller)
             if err then caller:ChatPrint(err) end
             if !r then return end
         else
@@ -66,8 +67,9 @@ function horus:runcmd(cmd, caller, args, silent)
         end
 
         net.Start('horus_message')
-        net.WriteEntity(caller)
-        net.WriteTable(msg)
+            net.WriteEntity(caller)
+            net.WriteTable(msg)
+            net.WriteBool(silent)
         net.Broadcast()
     elseif msg then
         caller:ChatPrint(msg)
@@ -76,15 +78,15 @@ end
 
 net.Receive('horus_command', function(len, ply)
     local args = net.ReadTable(args)
+    local silent = net.ReadBool()
     local caller = ply
     local cmd = args[1]
     table.remove(args, 1)
 
-    horus:runcmd(cmd, caller, args, false)
+    horus:runcmd(cmd, caller, args, silent)
 end)
 
 hook.Add('PlayerSay', 'Horus_ChatCommand', function(ply, txt, team)
-    print('Testing Horus commands')
     if txt:sub(1, 1) == '!' then
         txt = txt:sub(2)
         local args = horus:split(txt)
