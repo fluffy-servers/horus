@@ -50,3 +50,23 @@ function horus:discordPunishEmbed(title, description, victim, caller, color)
         }}
     }
 end
+
+function horus:discordPunishIDEmbed(title, description, victimid, caller, color)
+    return {
+        ["content"] = "",
+        ["username"] = "Horus - " .. horus.config.servername,
+        ["embeds"] = {{
+            ["title"] = title,
+            ["description"] = description,
+            ["color"] = color or horus.discordcolors['red'],
+            ["author"] = {
+                ["url"] = 'https://steamcommunity.com/profiles/' .. util.SteamIDTo64(victimid),
+                ["name"] = victimid
+            },
+            ["footer"] = {
+                ["icon_url"] = 'https://fluffyservers.com/api/steam/avatar/' .. caller:SteamID64(),
+                ["text"] = caller:Nick() .. ' (' .. caller:SteamID() .. ')'
+            }
+        }}
+    }
+end
