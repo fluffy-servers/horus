@@ -58,3 +58,7 @@ net.Receive('horus_message', function()
     
     chat.AddText(unpack(new))
 end)
+
+net.Receive('horus_error', function()
+    chat.AddText(unpack(net.ReadTable()))
+end)
