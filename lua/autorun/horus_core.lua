@@ -2,8 +2,8 @@ horus = horus or {}
 horus.config = horus.config or {}
 horus.commands = horus.commands or {}
 horus.colors = {
-    ['orange'] = Color(255, 140, 0),
-	['blue'] = Color(0, 140, 255)
+    ["orange"] = Color(255, 140, 0),
+	["blue"] = Color(0, 140, 255)
 }
 
 -- Command registration function
@@ -13,9 +13,21 @@ end
 
 -- Load all the command plugins from the folder
 function horus:loadCommands()
-    local path = 'horus/commands/'
+	-- Load generic commands
+	horus:loadCommandFiles("horus/commands/")
 
-	local files, folders = file.Find(path .. '*.lua', 'LUA')
+	-- Load gamemode-specific commands
+	if GAMEMODE.IsMinigames then
+		horus:loadCommandFiles("horus/commands/minigames/")
+	else
+		horus:loadCommandFiles("horus/commands/" .. GAMEMODE_NAME .. "/")
+	end
+end
+
+function horus:loadCommandFiles(path)
+	local files = file.Find(path .. ".*lua", "LUA")
+	if not files then return end
+
 	for k,v in pairs(files) do
 		if SERVER then AddCSLuaFile(path .. v) end
 		include(path .. v)
@@ -46,12 +58,12 @@ end
 -- Load the client/server init files
 -- This file acts as a basic shared init
 if SERVER then
-	AddCSLuaFile('horus/cl_init.lua')
-	AddCSLuaFile('horus/cl_autocomplete.lua')
+	AddCSLuaFile("horus/cl_init.lua")
+	AddCSLuaFile("horus/cl_autocomplete.lua")
 
 
-    include('horus/sv_init.lua')
+    include("horus/sv_init.lua")
 else
-    include('horus/cl_init.lua')
+    include("horus/cl_init.lua")
 end
 horus:loadCommands()
