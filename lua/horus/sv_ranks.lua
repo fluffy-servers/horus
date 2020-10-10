@@ -1,22 +1,22 @@
 local config = horus.config.database
 horus.ranks = horus.ranks or {}
 
--- Make sure that the 'user' and 'root' ranks always exist
-horus.ranks['user'] = {isadmin = false, issuper = false}
-horus.ranks['root'] = {isadmin = true, issuper = true}
+-- Make sure that the "user" and "root" ranks always exist
+horus.ranks["user"] = {isadmin = false, issuper = false}
+horus.ranks["root"] = {isadmin = true, issuper = true}
 
 -- Given a player or rank, check if the target has the given permission
 -- This is a recursive function pls be careful
 function horus:permission(target, perm)
-    if type(target) == 'Player' then
+    if type(target) == "Player" then
         -- Get the rank of the player and check with that
         local rank = target:GetUserGroup()
         return horus:permission(rank, perm)
-    elseif type(target) == 'string' then
-        if target == 'root' then
+    elseif type(target) == "string" then
+        if target == "root" then
             return true -- Root always has permission
         elseif !horus.ranks[target] then
-            ErrorNoHalt('Invalid target in Horus permission check')
+            ErrorNoHalt("[Horus] Invalid permission target")
             return false
         else
             -- Check if the rank has permission for this
@@ -25,39 +25,39 @@ function horus:permission(target, perm)
             end
 
             -- Check rank inheritance
-            if horus.ranks[horus.ranks[target].inherits] and target != 'user' then
+            if horus.ranks[horus.ranks[target].inherits] and target != "user" then
                 return horus:permission(horus.ranks[target].inherits, perm)
             end
 
-            -- Doesn't have the permission and does not inherit any furhter
+            -- Doesn"t have the permission and does not inherit any furhter
             return false
         end
     else
-        ErrorNoHalt('Invalid target in Horus permission check')
+        ErrorNoHalt("[Horus] Invalid permission target")
         return false
     end
 end
 
 function horus:cantarget(caller, target)
-    if type(target) == 'Player' then
+    if type(target) == "Player" then
         -- Use the rank of the target
         target = target:GetUserGroup()
     end
 
-    if type(caller) == 'Player' then
+    if type(caller) == "Player" then
         -- Run the function with the rank of the player
         local rank = caller:GetUserGroup()
         return horus:cantarget(rank, target)
-    elseif type(target) == 'string' then
-        if caller == 'root' then
+    elseif type(target) == "string" then
+        if caller == "root" then
             return true
         elseif !horus.ranks[target] or !horus.ranks[caller] then
-            ErrorNoHalt('Invalid target in Horus permission check')
+            ErrorNoHalt("[Horus] Invalid permission target")
             return false
         else
             if caller == target then return true end    -- Players of the same rank can target each other
-            if target == 'root' then return false end   -- Root cannot be targeted
-            if caller == 'user' then return false end   -- Users are the bottom of the food chain
+            if target == "root" then return false end   -- Root cannot be targeted
+            if caller == "user" then return false end   -- Users are the bottom of the food chain
 
             -- Check down the hierarchy
             if horus.ranks[call].inherits == target then
@@ -72,15 +72,15 @@ end
 -- Return a table with every permission a given target has
 -- This goes through inherited ranks
 function horus:allperms(target)
-    if type(target) == 'Player' then
+    if type(target) == "Player" then
         local rank = target:GetUsergroup()
         return horus:allperms(rank)
-    elseif type(target) == 'string' then
-        if target == 'root' then
+    elseif type(target) == "string" then
+        if target == "root" then
             -- Root has all permissions
             return table.GetKeys(horus.commands)
         elseif !horus.ranks[target] then
-            ErrorNoHalt('Invalid target in Horus permission check')
+            ErrorNoHalt("[Horus] Invalid permission target")
             return {}
         else
             -- Loop through this rank and all inherits to build the table
@@ -91,7 +91,7 @@ function horus:allperms(target)
             end
         end
     else
-        ErrorNoHalt('Invalid target in Horus permission check')
+        ErrorNoHalt("[Horus] Invalid permission target")
         return {}
     end
 end
@@ -116,9 +116,9 @@ function horus:sendperms(ply, rank, isadmin, issuper)
 
     -- hi my name is Robert and I love edge cases
     local rank_table = {}
-    if type(rank) == 'string' then
+    if type(rank) == "string" then
         rank_table = horus:allperms(rank)
-    elseif type(rank) == 'table' then
+    elseif type(rank) == "table" then
         rank_table = rank
     end
     
@@ -140,7 +140,7 @@ function horus:sendperms(ply, rank, isadmin, issuper)
     end
 
     -- Send all this information to the client
-    net.Start('horus_sendperms')
+    net.Start("horus_sendperms")
         net.WriteTable(rank_table)
         net.WriteTable(client_ranks)
         net.WriteBool(isadmin)
@@ -149,21 +149,21 @@ function horus:sendperms(ply, rank, isadmin, issuper)
 end
 
 -- Load ranks on player connection
-hook.Add('PlayerInitialSpawn', 'Horus_SendRank', function(ply)
+hook.Add("PlayerInitialSpawn", "Horus_SendRank", function(ply)
     if ply:IsListenServerHost() then
-        ply:SetUserGroup('root')
-        horus:sendperms(ply, 'root')
+        ply:SetUserGroup("root")
+        horus:sendperms(ply, "root")
     else
         -- TODO: Database
-        ply:SetUserGroup('user')
-        horus:sendperms(ply, 'user')
+        ply:SetUserGroup("user")
+        horus:sendperms(ply, "user")
     end
 end)
 
 -- On database connection, load all the rank data locally
-hook.Add('HorusPostTables', 'Horus_LoadRanks', function()
+hook.Add("HorusDatabaseConnected", "Horus_LoadRanks", function()
     -- TODO: Database
 end)
 
 -- Remove default stuff
-hook.Remove('PlayerInitialSpawn', 'PlayerAuthSpawn')
+hook.Remove("PlayerInitialSpawn", "PlayerAuthSpawn")

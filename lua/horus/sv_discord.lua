@@ -37,15 +37,15 @@ function horus:discordPunishEmbed(title, description, victim, caller, color)
         ["embeds"] = {{
             ["title"] = title,
             ["description"] = description,
-            ["color"] = color or horus.discordcolors['red'],
+            ["color"] = color or horus.discordcolors["red"],
             ["author"] = {
-                ["icon_url"] = 'https://fluffyservers.com/api/steam/avatar/' .. victim:SteamID64(),
-                ["url"] = 'https://steamcommunity.com/profiles/' .. victim:SteamID64(),
+                ["icon_url"] = "https://fluffyservers.com/api/steam/avatar/" .. victim:SteamID64(),
+                ["url"] = "https://steamcommunity.com/profiles/" .. victim:SteamID64(),
                 ["name"] = victim:Nick()
             },
             ["footer"] = {
-                ["icon_url"] = 'https://fluffyservers.com/api/steam/avatar/' .. caller:SteamID64(),
-                ["text"] = caller:Nick() .. ' (' .. caller:SteamID() .. ')'
+                ["icon_url"] = "https://fluffyservers.com/api/steam/avatar/" .. caller:SteamID64(),
+                ["text"] = caller:Nick() .. " (" .. caller:SteamID() .. ")"
             }
         }}
     }
@@ -58,14 +58,14 @@ function horus:discordPunishIDEmbed(title, description, victimid, caller, color)
         ["embeds"] = {{
             ["title"] = title,
             ["description"] = description,
-            ["color"] = color or horus.discordcolors['red'],
+            ["color"] = color or horus.discordcolors["red"],
             ["author"] = {
-                ["url"] = 'https://steamcommunity.com/profiles/' .. util.SteamIDTo64(victimid),
+                ["url"] = "https://steamcommunity.com/profiles/" .. util.SteamIDTo64(victimid),
                 ["name"] = victimid
             },
             ["footer"] = {
-                ["icon_url"] = 'https://fluffyservers.com/api/steam/avatar/' .. caller:SteamID64(),
-                ["text"] = caller:Nick() .. ' (' .. caller:SteamID() .. ')'
+                ["icon_url"] = "https://fluffyservers.com/api/steam/avatar/" .. caller:SteamID64(),
+                ["text"] = caller:Nick() .. " (" .. caller:SteamID() .. ")"
             }
         }}
     }

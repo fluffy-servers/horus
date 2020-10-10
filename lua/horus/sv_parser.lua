@@ -1,9 +1,9 @@
 horus.handlers = {}
-horus.handlers['player_one'] = function(arg, caller)
+horus.handlers["player_one"] = function(arg, caller)
     local res = {}
     if arg == "" then
-        return false, 'No target specified'
-    elseif arg == '^' then
+        return false, "No target specified"
+    elseif arg == "^" then
         -- Use ^ as shorthand for self-inflicted commands
         res = {caller}
     elseif string.StartWith(arg, "steam_0:") then
@@ -12,7 +12,7 @@ horus.handlers['player_one'] = function(arg, caller)
         if p then
             res = {p}
         else
-            return false, 'SteamID not found'
+            return false, "SteamID not found"
         end
     else
         -- Find all players with names matching the argument
@@ -24,9 +24,9 @@ horus.handlers['player_one'] = function(arg, caller)
     end
 
     -- Check validity of arguments
-    if #res == 0 then return false, 'No matching player found' end
-    if #res > 1 then return false, 'More than one player matched!' end
-    if !horus:cantarget(caller, res[1]) then return false, 'You cannot target that player!' end
+    if #res == 0 then return false, "No matching player found" end
+    if #res > 1 then return false, "More than one player matched!" end
+    if !horus:cantarget(caller, res[1]) then return false, "You cannot target that player!" end
     return res[1]
 end
 
@@ -35,7 +35,7 @@ function horus:runcmd(cmd, caller, args, silent)
     local params = horus.commands[cmd].args
 
     -- First things first: Check player access and arguments
-    if !horus:permission(caller, cmd) then caller:ChatPrint('You do not have permission to use this command!') return false end
+    if !horus:permission(caller, cmd) then caller:ChatPrint("You do not have permission to use this command!") return false end
 
     -- Handle all parameters safely
     local handled = {}
@@ -56,19 +56,19 @@ function horus:runcmd(cmd, caller, args, silent)
     -- This is unpleasant code I know I'm sorry
     local success, msg = horus.commands[cmd].func(caller, unpack(handled))
     if success and msg then
-        msg = string.Explode(' ', msg)
+        msg = string.Explode(" ", msg)
         for k,v in pairs(msg) do
-            if v == '%c' then
+            if v == "%c" then
                 msg[k] = caller
-            elseif string.StartWith(v, '%') then
+            elseif string.StartWith(v, "%") then
                 local n = tonumber(string.sub(v, 2))
                 msg[k] = handled[n]
             else
-                msg[k] = ' ' .. v .. ' '
+                msg[k] = " " .. v .. " "
             end
         end
 
-        net.Start('horus_message')
+        net.Start("horus_message")
         net.WriteEntity(caller)
         net.WriteTable(msg)
         net.WriteBool(silent)
@@ -86,12 +86,12 @@ end
 
 function horus:senderror(ply, text)
     local msg = {horus.colors.orange, text}
-    net.Start('horus_error')
+    net.Start("horus_error")
     net.WriteTable(msg)
     net.Send(ply)
 end
 
-net.Receive('horus_command', function(len, ply)
+net.Receive("horus_command", function(len, ply)
     local args = net.ReadTable(args)
     local silent = net.ReadBool()
     local caller = ply
@@ -101,8 +101,8 @@ net.Receive('horus_command', function(len, ply)
     horus:runcmd(cmd, caller, args, silent)
 end)
 
-hook.Add('PlayerSay', 'Horus_ChatCommand', function(ply, txt, team)
-    if txt:sub(1, 1) == '!' then
+hook.Add("PlayerSay", "Horus_ChatCommand", function(ply, txt, team)
+    if txt:sub(1, 1) == "!" then
         txt = txt:sub(2)
         local args = horus:split(txt)
         local cmd = args[1]
