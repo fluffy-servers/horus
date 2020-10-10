@@ -87,7 +87,7 @@ function horus:allperms(target)
             if horus.ranks[horus.ranks[target].inherits] then
                 return table.Add(horus.ranks[target].perms, horus:allperms(horus.ranks[target].inherits))
             else
-                return horus.ranks[target].perms
+                return horus.ranks[target].perms or {}
             end
         end
     else
@@ -121,7 +121,7 @@ function horus:sendperms(ply, rank, isadmin, issuper)
     elseif type(rank) == 'table' then
         rank_table = rank
     end
-
+    
     -- Not sure why these parameters are important
     if !isadmin or !issuper then
         isadmin = horus.ranks[rank].isadmin

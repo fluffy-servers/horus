@@ -1,3 +1,5 @@
+include('cl_autocomplete.lua')
+
 -- Handle storage of local permissions
 net.Receive('horus_sendperms', function()
     horus.myperms = net.ReadTable()
@@ -27,7 +29,17 @@ end
 net.Receive('horus_message', function()
     local caller = net.ReadEntity()
     local msg = net.ReadTable()
+    local silent = net.ReadBool()
     local new = {}
+
+    -- Add a silent tag if command silent
+    if silent then
+        table.insert(new, horus.colors.orange)
+        table.insert(new, '(silent) ')
+        table.insert(new, color_white)
+    end
+    
+    -- Handle argument display
     for k,v in pairs(msg) do
         if type(v) == 'string' then
             table.insert(new, color_white)
@@ -45,4 +57,8 @@ net.Receive('horus_message', function()
     end
     
     chat.AddText(unpack(new))
+end)
+
+net.Receive('horus_error', function()
+    chat.AddText(unpack(net.ReadTable()))
 end)

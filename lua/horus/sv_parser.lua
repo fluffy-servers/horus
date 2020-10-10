@@ -1,8 +1,9 @@
-local handlers = {}
-handlers['player_one'] = function(arg, caller)
+horus.handlers = {}
+horus.handlers['player_one'] = function(arg, caller)
     local res = {}
-    print(arg)
-    if arg == '^' then
+    if arg == "" then
+        return false, 'No target specified'
+    elseif arg == '^' then
         -- Use ^ as shorthand for self-inflicted commands
         res = {caller}
     elseif string.StartWith(arg, "steam_0:") then
@@ -11,13 +12,12 @@ handlers['player_one'] = function(arg, caller)
         if p then
             res = {p}
         else
-            return faslse, 'SteamID not found'
+            return false, 'SteamID not found'
         end
     else
         -- Find all players with names matching the argument
         for k,v in pairs(player.GetAll()) do
-            print(v:Nick():lower(), arg)
-            if string.find(v:Nick():lower(), arg) then
+            if string.find(v:Nick():lower(), arg:lower()) then
                 table.insert(res, v)
             end
         end
@@ -42,9 +42,9 @@ function horus:runcmd(cmd, caller, args, silent)
     for i=1, #params do
         local p = params[i]
         local r, err
-        if handlers[p] then
-            r, err = handlers[p](args[i], caller)
-            if err then caller:ChatPrint(err) end
+        if horus.handlers[p] then
+            r, err = horus.handlers[p](args[i] or "", caller)
+            if err then horus:senderror(caller, err) end
             if !r then return end
         else
             r = args[i]
@@ -52,7 +52,8 @@ function horus:runcmd(cmd, caller, args, silent)
         table.insert(handled, r)
     end
 
-    -- WTF is this code
+    -- Result string substitution
+    -- This is unpleasant code I know I'm sorry
     local success, msg = horus.commands[cmd].func(caller, unpack(handled))
     if success and msg then
         msg = string.Explode(' ', msg)
@@ -60,7 +61,7 @@ function horus:runcmd(cmd, caller, args, silent)
             if v == '%c' then
                 msg[k] = caller
             elseif string.StartWith(v, '%') then
-                local n =tonumber(string.sub(v, 2))
+                local n = tonumber(string.sub(v, 2))
                 msg[k] = handled[n]
             else
                 msg[k] = ' ' .. v .. ' '
@@ -70,23 +71,37 @@ function horus:runcmd(cmd, caller, args, silent)
         net.Start('horus_message')
         net.WriteEntity(caller)
         net.WriteTable(msg)
-        net.Broadcast()
+        net.WriteBool(silent)
+
+        -- Broadcast to all players
+        if silent then
+            net.Send(caller)
+        else
+            net.Broadcast()
+        end
     elseif msg then
         caller:ChatPrint(msg)
     end
 end
 
+function horus:senderror(ply, text)
+    local msg = {horus.colors.orange, text}
+    net.Start('horus_error')
+    net.WriteTable(msg)
+    net.Send(ply)
+end
+
 net.Receive('horus_command', function(len, ply)
     local args = net.ReadTable(args)
+    local silent = net.ReadBool()
     local caller = ply
     local cmd = args[1]
     table.remove(args, 1)
 
-    horus:runcmd(cmd, caller, args, false)
+    horus:runcmd(cmd, caller, args, silent)
 end)
 
 hook.Add('PlayerSay', 'Horus_ChatCommand', function(ply, txt, team)
-    print('Testing Horus commands')
     if txt:sub(1, 1) == '!' then
         txt = txt:sub(2)
         local args = horus:split(txt)
