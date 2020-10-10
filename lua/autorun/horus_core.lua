@@ -1,6 +1,8 @@
 horus = horus or {}
 horus.config = horus.config or {}
 horus.commands = horus.commands or {}
+
+-- Colors!
 horus.colors = {
     ["orange"] = Color(255, 140, 0),
 	["blue"] = Color(0, 140, 255)
@@ -11,12 +13,11 @@ function horus.command(name, help, args, func)
     horus.commands[name] = {args = args, func = func, help = help}
 end
 
--- Load all the command plugins from the folder
+-- Load the default and gamemode commands
 function horus:loadCommands()
-	-- Load generic commands
+	print("Horus is now loading...")
 	horus:loadCommandFiles("horus/commands/")
 
-	-- Load gamemode-specific commands
 	if GAMEMODE.IsMinigames then
 		horus:loadCommandFiles("horus/commands/minigames/")
 	else
@@ -24,11 +25,14 @@ function horus:loadCommands()
 	end
 end
 
+-- Load all commands in a given file path
 function horus:loadCommandFiles(path)
-	local files = file.Find(path .. ".*lua", "LUA")
+	print("Loading: ", path)
+	local files = file.Find(path .. "*.lua", "LUA")
 	if not files then return end
 
 	for k,v in pairs(files) do
+		print("LOADING: ", v)
 		if SERVER then AddCSLuaFile(path .. v) end
 		include(path .. v)
 	end
@@ -61,9 +65,11 @@ if SERVER then
 	AddCSLuaFile("horus/cl_init.lua")
 	AddCSLuaFile("horus/cl_autocomplete.lua")
 
-
     include("horus/sv_init.lua")
 else
     include("horus/cl_init.lua")
 end
-horus:loadCommands()
+
+hook.Add("OnGamemodeLoaded", "LoadHorusCommands", function()
+	horus:loadCommands()
+end)
