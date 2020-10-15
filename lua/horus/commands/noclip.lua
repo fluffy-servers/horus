@@ -8,7 +8,6 @@ local function apply_noclip(ply, state)
 end
 
 horus.command("noclip", "Makes a player noclip.", {"player_many", "boolean"}, function(caller, targets, state)
-    print(targets, state)
     for _, v in pairs(targets) do
         apply_noclip(v, state)
     end
