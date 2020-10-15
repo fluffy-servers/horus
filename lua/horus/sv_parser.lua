@@ -1,33 +1,100 @@
 horus.handlers = {}
-horus.handlers["player_one"] = function(arg, caller)
-    local res = {}
-    if arg == "" then
-        return false, "No target specified"
-    elseif arg == "^" then
-        -- Use ^ as shorthand for self-inflicted commands
-        res = {caller}
-    elseif string.StartWith(arg, "steam_0:") then
-        -- Find players with specific steam ID
-        local p = player.GetBySteamID(arg)
-        if p then
-            res = {p}
-        else
-            return false, "SteamID not found"
-        end
-    else
-        -- Find all players with names matching the argument
-        for k,v in pairs(player.GetAll()) do
-            if string.find(v:Nick():lower(), arg:lower()) then
-                table.insert(res, v)
-            end
+
+-- Helper functions!
+-- Check if the argument matches a player by ID
+local function checkIDTarget(arg, caller)
+    -- this is a weird edge case please ignore
+    if arg:lower() == "bot" then return end
+
+    -- Check for standard SteamID
+    local p = player.GetBySteamID(arg)
+    if p and IsValid(p) then return {p} end
+
+    -- Check for SteamID64
+    p = player.GetBySteamID64(arg)
+    if p and IsValid(p) then return {p} end
+
+    -- Check for standard ID
+    if string.StartWith(arg, "$") then
+        local id = tonumber(string.sub(arg, 2))
+        if id ~= nil then
+            p = player.GetByID(id)
+            if p and IsValid(p) then return {p} end
         end
     end
 
-    -- Check validity of arguments
+    return false
+end
+
+-- Find all targetable players
+local function findAllTargetablePlayers(arg, caller)
+    -- Find all targetable players with names that match
+    local res = {}
+    for k,v in pairs(player.GetAll()) do
+        print(v:Nick(), arg)
+        if string.find(v:Nick():lower(), arg:lower()) and horus:cantarget(caller, v) then
+            table.insert(res, v)
+        end
+    end
+
+    return res
+end
+
+-- Check if this is a self-target
+local function checkSpecialTargets(arg, caller)
+    if arg == "^" then return {caller} end
+    if arg == "*" then return findAllTargetablePlayers("", caller) end
+    return false
+end
+
+-- Check a table of players to ensure that they can all be targeted
+local function checkCanTargetTableOfPlayers(tbl, caller)
+    for k,v in pairs(tbl) do
+        if not v or not v:IsPlayer() then return false end
+        if not horus:cantarget(caller, v) then return false end
+    end
+    return true
+end
+
+
+horus.handlers["player_one"] = function(arg, caller)
+    local res
+    if arg == "" then
+        return false, "No target specified"
+    end
+
+    -- Run helper functions to find a target
+    if not res then res = checkSpecialTargets(arg, caller) end
+    if not res then res = checkIDTarget(arg, caller) end
+    if not res then res = findAllTargetablePlayers(arg, caller) end
+
+    -- Verify validity
     if #res == 0 then return false, "No matching player found" end
     if #res > 1 then return false, "More than one player matched!" end
     if !horus:cantarget(caller, res[1]) then return false, "You cannot target that player!" end
     return res[1]
+end
+
+horus.handlers["player_many"] = function(arg, caller)
+    local res
+    if arg == "" then
+        return false, "No target specified"
+    end
+
+    -- Engage safety mode with !, check single player case
+    if string.StartWith(arg, "!") then
+        return horus.handlers["player_one"](string.sub(arg, 2), caller)
+    end
+
+    -- Run helper functions to find a target
+    if not res then res = checkSpecialTargets(arg, caller) end
+    if not res then res = checkIDTarget(arg, caller) end
+    if not res then res = findAllTargetablePlayers(arg, caller) end
+
+    -- Verify validity
+    if #res == 0 then return false, "No matching players found" end
+    if !checkCanTargetTableOfPlayers(res, caller) then return false, "Targeting error!" end
+    return res
 end
 
 function horus:runcmd(cmd, caller, args, silent)
