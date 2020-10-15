@@ -9,10 +9,19 @@ net.Receive('horus_sendperms', function()
     -- This is a lot more secure than having everyone know everything
     horus.commands = {}
     horus.myperms = {}
-    for _,v in pairs(commandinfo) do
+    for _, v in pairs(commandinfo) do
         local perm = v[1]
+
+        -- Precalculate argument names for faster autocomplete
+        local names = {}
+        for _, arg in pairs(v[2]) do
+            local split = string.Split(arg, ":")
+            table.insert(names, split[#split])
+        end
+
         horus.commands[perm] = {
             args = v[2],
+            names = names,
             help = v[3]
         }
         table.insert(horus.myperms, perm)

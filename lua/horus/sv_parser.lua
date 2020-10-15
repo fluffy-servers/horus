@@ -31,7 +31,6 @@ local function findAllTargetablePlayers(arg, caller)
     -- Find all targetable players with names that match
     local res = {}
     for k,v in pairs(player.GetAll()) do
-        print(v:Nick(), arg)
         if string.find(v:Nick():lower(), arg:lower()) and horus:cantarget(caller, v) then
             table.insert(res, v)
         end
@@ -132,7 +131,7 @@ function horus:runcmd(cmd, caller, args, silent)
     -- Handle all parameters safely
     local handled = {}
     for i=1, #params do
-        local p = params[i]
+        local p = string.Split(params[i], ":")[1]
         local r, err
         if horus.handlers[p] then
             r, err = horus.handlers[p](args[i] or "", caller)

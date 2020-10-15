@@ -7,7 +7,7 @@ local function apply_noclip(ply, state)
     end
 end
 
-horus.command("noclip", "Makes a player noclip.", {"player_many", "boolean"}, function(caller, targets, state)
+horus.command("noclip", "Makes a player noclip.", {"player_many:players", "boolean:enabled?"}, function(caller, targets, state)
     for _, v in pairs(targets) do
         apply_noclip(v, state)
     end

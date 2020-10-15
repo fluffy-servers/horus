@@ -46,7 +46,6 @@ function horus.consolecomplete(base, str, nospace)
         end
     else
         -- Handle argument processing
-        --local base = 'horus '
         for i=1,#args-1 do base = base .. args[i] .. ' ' end
 
         local cmd = args[1]:lower()
@@ -55,6 +54,7 @@ function horus.consolecomplete(base, str, nospace)
 
         -- Autocomplete arguments
         local p = cmd.args[#args - 1]
+        p = string.Split(p, ":")[1]
         if horus.autocompletes[p] then
             local results = horus.autocompletes[p](args[#args])
             for k,v in pairs(results) do
@@ -64,6 +64,47 @@ function horus.consolecomplete(base, str, nospace)
     end
 
     return tbl
+end
+
+-- Similar to the above, but with additional help text
+function horus.helptext(base, str, nospace)
+    if !horus.myperms then return {} end
+
+    -- Cleanup and split the string
+    str = string.Trim(str)
+    str = string.lower(str)
+    if not nospace then
+        base = base .. ' '
+    end
+    local args = horus:split(str)
+    local tbl = {}
+
+    if #args == 1 then
+        -- List all matching commands
+        local c = args[1]
+        local l = #args[1]
+        for k,v in pairs(horus.myperms) do
+            if string.find(v, c) then
+                table.insert(tbl, base .. v)
+            end
+        end
+
+        -- If we only have one command, display helptext for it!
+        if #tbl == 1 then
+            local command = string.sub(tbl[1], 2)
+            if horus.commands[command] then
+                local names = horus.commands[command].names
+                local str = tbl[1]
+                for _, name in pairs(names) do
+                    str = str .. " <" .. name .. ">"
+                end
+
+                return {str}
+            end
+        end
+    end
+
+    return horus.consolecomplete(base, str, nospace)
 end
 
 local function command(ply, cmd, args, str)
@@ -93,15 +134,16 @@ hook.Add("FinishChat", "HorusCloseChat", function()
 end)
 
 hook.Add("OnChatTab", "HorusChatAutocomplete", function(str)
-    if string.Left(str, 1) == "!" and horus.chatSuggestions and #horus.chatSuggestions >= 1 then
-        return horus.chatSuggestions[1]
+    local autocompletes = horus.consolecomplete("!", str, true)
+    if string.Left(str, 1) == "!" and autocompletes and #autocompletes >= 1 then
+        return autocompletes[1]
     end
 end)
 
 hook.Add("ChatTextChanged", "HorusSuggestions", function(str)
     if string.Left(str, 1) == '!' then
         str = string.sub(str, 2)
-        horus.chatSuggestions = horus.consolecomplete("!", str, true)
+        horus.chatSuggestions = horus.helptext("!", str, true)
     end
 end)
 

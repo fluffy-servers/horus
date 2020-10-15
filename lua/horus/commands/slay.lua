@@ -7,7 +7,7 @@ horus.command("slay", "Eliminate a player", {"player_many"}, function(caller, ta
 	end
 end)
 
-horus.command("explode", "Detonate a player", {"player_one"}, function(caller, target)
+horus.command("explode", "Detonate a player", {"player_one:player"}, function(caller, target)
 	if target:Alive() then
 		local boom = ents.Create("env_explosion")
 		boom:SetPos( target:GetPos() )
