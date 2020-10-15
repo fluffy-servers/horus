@@ -67,5 +67,6 @@ else
 end
 
 hook.Add("OnGamemodeLoaded", "LoadHorusCommands", function()
+	if CLIENT then return end
 	horus:loadCommands()
 end)
