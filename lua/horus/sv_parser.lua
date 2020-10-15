@@ -97,6 +97,12 @@ horus.handlers["player_many"] = function(arg, caller)
     return res
 end
 
+horus.handlers["boolean"] = function(arg, caller)
+    if not arg or arg == "" then return nil, false end
+    if arg == "0" or arg == "f" or arg == "false" then return false, false end
+    return true, false
+end
+
 function horus:runcmd(cmd, caller, args, silent)
     if !horus.commands[cmd] then return false end
     local params = horus.commands[cmd].args
@@ -112,7 +118,7 @@ function horus:runcmd(cmd, caller, args, silent)
         if horus.handlers[p] then
             r, err = horus.handlers[p](args[i] or "", caller)
             if err then horus:senderror(caller, err) end
-            if !r then return end
+            if p ~= "boolean" and !r then return end
         else
             r = args[i]
         end
