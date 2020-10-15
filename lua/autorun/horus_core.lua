@@ -14,13 +14,13 @@ function horus.command(name, help, args, func)
 end
 
 -- Load the default and gamemode commands
-function horus:loadCommands()
-	horus:loadCommandFiles("horus/commands/")
+function horus:loadCommands(root)
+	horus:loadCommandFiles("horus/" .. root .. "/")
 
 	if GAMEMODE.IsMinigames then
-		horus:loadCommandFiles("horus/commands/minigames/")
+		horus:loadCommandFiles("horus/" .. root .. "/minigames/")
 	end
-	horus:loadCommandFiles("horus/commands/" .. GAMEMODE_NAME .. "/")
+	horus:loadCommandFiles("horus/" .. root .. "/" .. GAMEMODE_NAME .. "/")
 end
 
 -- Load all commands in a given file path
@@ -67,6 +67,9 @@ else
 end
 
 hook.Add("OnGamemodeLoaded", "LoadHorusCommands", function()
-	if CLIENT then return end
-	horus:loadCommands()
+	if CLIENT then 
+		horus:loadCommands("client")
+	else
+		horus:loadCommands("commands")
+	end
 end)
