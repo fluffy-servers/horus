@@ -54,17 +54,18 @@ end
 function horus_sql:GetConnection()
     if not self.Database then
         -- Start a new database connection
+        local hsql = self
         local config = self.config
         local port = self.config.port or 3306
         self.Database = mysqloo.connect(config.host, config.username, config.password, config.database, port)
         self.Database:connect()
 
         function self.Database:onConnected()
-            self:OnConnected()
+            hsql:OnConnected()
         end
 
         function self.Database:onConnectionFailed(err)
-            self:OnConnectionFailed(err)
+            hsql:OnConnectionFailed(err)
         end
 
         return self.Database
