@@ -40,7 +40,7 @@ function horus.consolecomplete(base, str, nospace)
         local c = args[1]
         local l = #args[1]
         for k,v in pairs(horus.myperms) do
-            if string.find(v, c) then
+            if string.StartWith(v, c) then
                 table.insert(tbl, base .. v)
             end
         end
@@ -84,7 +84,7 @@ function horus.helptext(base, str, nospace)
         local c = args[1]
         local l = #args[1]
         for k,v in pairs(horus.myperms) do
-            if string.find(v, c) then
+            if string.StartWith(v, c) then
                 table.insert(tbl, base .. v)
             end
         end
