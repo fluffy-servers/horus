@@ -15,24 +15,20 @@ end
 
 -- Load the default and gamemode commands
 function horus:loadCommands()
-	print("Horus is now loading...")
 	horus:loadCommandFiles("horus/commands/")
 
 	if GAMEMODE.IsMinigames then
 		horus:loadCommandFiles("horus/commands/minigames/")
-	else
-		horus:loadCommandFiles("horus/commands/" .. GAMEMODE_NAME .. "/")
 	end
+	horus:loadCommandFiles("horus/commands/" .. GAMEMODE_NAME .. "/")
 end
 
 -- Load all commands in a given file path
 function horus:loadCommandFiles(path)
-	print("Loading: ", path)
 	local files = file.Find(path .. "*.lua", "LUA")
 	if not files then return end
 
 	for k,v in pairs(files) do
-		print("LOADING: ", v)
 		if SERVER then AddCSLuaFile(path .. v) end
 		include(path .. v)
 	end
