@@ -58,10 +58,11 @@ function horus:cantarget(caller, target)
         else
             if caller == target then return true end    -- Players of the same rank can target each other
             if target == "root" then return false end   -- Root cannot be targeted
+            if target == "user" then return true end    -- User can be targeted
             if caller == "user" then return false end   -- Users are the bottom of the food chain
 
             -- Check down the hierarchy
-            if horus.ranks[call].inherits == target then
+            if horus.ranks[caller].inherits == target then
                 return true
             else
                 return horus:cantarget(horus.ranks[caller].inherits, target)
@@ -74,7 +75,7 @@ end
 -- This goes through inherited ranks
 function horus:allperms(target)
     if type(target) == "Player" then
-        local rank = target:GetUsergroup()
+        local rank = target:GetUserGroup()
         return horus:allperms(rank)
     elseif type(target) == "string" then
         if target == "root" then
@@ -86,9 +87,9 @@ function horus:allperms(target)
         else
             -- Loop through this rank and all inherits to build the table
             if horus.ranks[horus.ranks[target].inherits] then
-                return table.Add(horus.ranks[target].perms, horus:allperms(horus.ranks[target].inherits))
+                return table.Add(table.GetKeys(horus.ranks[target].perms), horus:allperms(horus.ranks[target].inherits))
             else
-                return horus.ranks[target].perms or {}
+                return table.GetKeys(horus.ranks[target].perms) or {}
             end
         end
     else

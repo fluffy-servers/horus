@@ -3,8 +3,8 @@ horus.command("slay", "Eliminate a player", {"player_many:players"}, function(ca
 		if v:Alive() then
 			v:Kill()
 		end
-		return true, "%c killed %1"
 	end
+	return true, "%c killed %1"
 end)
 
 horus.command("explode", "Detonate a player", {"player_one:player"}, function(caller, target)

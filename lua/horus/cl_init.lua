@@ -29,7 +29,7 @@ net.Receive('horus_sendperms', function()
         }
         table.insert(horus.myperms, perm)
     end
-
+    
     LocalPlayer().perms = horus.myperms
     LocalPlayer().isadmin = net.ReadBool()
     LocalPlayer().issuper = net.ReadBool()
