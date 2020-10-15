@@ -1,10 +1,10 @@
-horus.command("slay", "Eliminate a player", {"player_one"}, function(caller, target)
-	if target:Alive() then
-		target:Kill()
-        return true, "%c killed %1"
-	else
-        return false, "Target is already dead!"
-    end
+horus.command("slay", "Eliminate a player", {"player_many"}, function(caller, targets)
+	for _,v in pairs(targets) do
+		if v:Alive() then
+			v:Kill()
+		end
+		return true, "%c killed %1"
+	end
 end)
 
 horus.command("explode", "Detonate a player", {"player_one"}, function(caller, target)
