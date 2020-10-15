@@ -1,4 +1,4 @@
-horus.command("slay", "Eliminate a player", {"player_many"}, function(caller, targets)
+horus.command("slay", "Eliminate a player", {"player_many:players"}, function(caller, targets)
 	for _,v in pairs(targets) do
 		if v:Alive() then
 			v:Kill()

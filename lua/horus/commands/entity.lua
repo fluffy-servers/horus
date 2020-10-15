@@ -1,4 +1,4 @@
-horus.command("entity", "Spawn an entity", {"string"}, function(caller, class)
+horus.command("entity", "Spawn an entity", {"string:entity class"}, function(caller, class)
     local pos = caller:GetEyeTrace().HitPos
     
     local ent = ents.Create(class)
