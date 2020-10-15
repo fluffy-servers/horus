@@ -117,9 +117,12 @@ function horus:setrank(ply, rank)
     if !horus.ranks[rank] then return end
     if !IsValid(ply) then return end
     if !ply:IsPlayer() then return end
+    if ply:IsBot() then return end
 
-    -- TODO: Database sync
+    -- Store this into the database
+    horus_sql:RunPreparedQuery("SetPlayerRank", nil, ply:SteamID64(), rank, horus.config.serverid)
 
+    -- Network
     ply:SetUserGroup(rank)
     horus:sendperms(ply, rank)
 end
@@ -183,3 +186,10 @@ function horus:sendperms(ply, rank, isadmin, issuper)
         net.WriteBool(issuper)
     net.Send(ply)
 end
+
+-- On database connection, prepare the rank queries
+hook.Add("HorusDatabaseConnected", "Horus_CreatePlayerRankQueries", function()
+    -- Load from DB
+    horus_sql:CreatePreparedQuery("LoadPlayerRank", "SELECT * FROM horus_users WHERE steamid64 = ? AND (server = ? OR server = 'global')")
+    horus_sql:CreatePreparedQuery("SetPlayerRank", "INSERT INTO horus_users VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE rank = VALUES(rank)")
+end)

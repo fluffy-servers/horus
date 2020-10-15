@@ -1,6 +1,21 @@
 -- Remove default stuff
 hook.Remove("PlayerInitialSpawn", "PlayerAuthSpawn")
 
+local function AuthenticateUser(data)
+    local row = data[1]
+    if #data == 2 then
+        -- Global rank takes precedence
+        if data[1].server ~= "global" then
+            row = data[2]
+        end
+    end
+
+    -- Apply the rank
+    local ply = player.GetBySteamID64(row.steamid64)
+    if not ply then return end
+    horus:setrank(ply, row.rank)
+end
+
 -- Load ranks on player connection
 hook.Add("PlayerInitialSpawn", "Horus_SendRank", function(ply)
     -- Listen server hosts get full perms by default
@@ -9,6 +24,9 @@ hook.Add("PlayerInitialSpawn", "Horus_SendRank", function(ply)
         horus:sendperms(ply, "root")
         return
     end
+
+    -- Attempt to load permissions from the database
+    horus_sql:RunPreparedQuery("LoadPlayerRank", AuthenticateUser, ply:SteamID64(), horus.config.serverid)
 
     -- Attempt to load permissions from the database
     ply:SetUserGroup("user")
@@ -39,7 +57,5 @@ hook.Add("HorusDatabaseConnected", "Horus_LoadRanks", function()
     -- Load from DB
     horus_sql:CreatePreparedQuery("LoadRanks", "SELECT * FROM horus_ranks WHERE server = ? OR server = 'global'")
     horus_sql:CreatePreparedQuery("LoadPerms", "SELECT * FROM horus_perms WHERE server = ? OR server = 'global'")
-    
-    print("SERVER ID:", horus.config.serverid)
     horus_sql:RunPreparedQuery("LoadRanks", LoadRanks, horus.config.serverid)
 end)

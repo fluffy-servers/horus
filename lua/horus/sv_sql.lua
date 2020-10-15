@@ -22,7 +22,10 @@ end
 function horus_sql:RunPreparedQuery(id, callback, ...)
     local args = { ... }
     local query = self:GetPreparedQuery(id)
-    if not query then return end
+    if not query then
+        ErrorNoHalt("Unknown query")
+        return 
+    end
 
     -- Set the arguments in the query
     for i,v in ipairs(args) do
@@ -34,8 +37,13 @@ function horus_sql:RunPreparedQuery(id, callback, ...)
     end
 
     function query:onSuccess(data)
-        callback(data)
+        if callback then callback(data) end
     end
+
+    function query:onError(err)
+        ErrorNoHalt(err)
+    end
+
     query:start()
     return query
 end
@@ -45,9 +53,7 @@ function horus_sql:RunRawQuery(string, callback)
     local query = self.Database:query(string)
 
     function query:onSuccess(data)
-        if callback then
-            callback(data)
-        end
+        if callback then callback(data) end
     end
     query:start()
     return query
@@ -110,7 +116,7 @@ function horus_sql:CreateTables()
             `isadmin` TINYINT(1) NOT NULL DEFAULT '0',
             `issuper` TINYINT(1) NOT NULL DEFAULT '0',
             `server` VARCHAR(50) NOT NULL,
-            PRIMARY KEY (`rank`)
+            PRIMARY KEY (`rank`, `server`)
         )
     ]])
 
@@ -119,7 +125,16 @@ function horus_sql:CreateTables()
 	        `rank` VARCHAR(50) NOT NULL,
 	        `perm` VARCHAR(50) NOT NULL,
 	        `server` VARCHAR(50) NOT NULL,
-	        PRIMARY KEY (`rank`, `perm`)
+	        PRIMARY KEY (`rank`, `perm`, `server`)
+        )
+    ]])
+
+    self:RunRawQuery([[
+        CREATE TABLE IF NOT EXISTS `horus_users` (
+            `steamid64` VARCHAR(64) NOT NULL,
+            `rank` VARCHAR(50) NOT NULL,
+            `server` VARCHAR(50) NOT NULL,
+            PRIMARY KEY (`steamid64`, `server`)
         )
     ]])
 end
