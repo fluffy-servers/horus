@@ -54,11 +54,13 @@ function horus.consolecomplete(base, str, nospace)
 
         -- Autocomplete arguments
         local p = cmd.args[#args - 1]
-        p = string.Split(p, ":")[1]
-        if horus.autocompletes[p] then
-            local results = horus.autocompletes[p](args[#args])
-            for k,v in pairs(results) do
-                table.insert(tbl, base .. v)
+        if p then
+            p = string.Split(p, ":")[1]
+            if horus.autocompletes[p] then
+                local results = horus.autocompletes[p](args[#args])
+                for k,v in pairs(results) do
+                    table.insert(tbl, base .. v)
+                end
             end
         end
     end
