@@ -1,5 +1,8 @@
 include('cl_autocomplete.lua')
 
+-- Shared files
+include("sh_auth.lua")
+
 -- Handle storage of local permissions
 net.Receive('horus_sendperms', function()
     local commandinfo = net.ReadTable()

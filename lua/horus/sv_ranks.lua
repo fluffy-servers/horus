@@ -2,8 +2,8 @@ local config = horus.config.database
 horus.ranks = horus.ranks or {}
 
 -- Make sure that the "user" and "root" ranks always exist
-horus.ranks["user"] = {isadmin = false, issuper = false}
-horus.ranks["root"] = {isadmin = true, issuper = true}
+horus.ranks["user"] = {ismod = false, isadmin = false, issuper = false}
+horus.ranks["root"] = {ismod = true, isadmin = true, issuper = true}
 
 -- Given a player or rank, check if the target has the given permission
 -- This is a recursive function pls be careful
@@ -94,6 +94,20 @@ function horus:allperms(target)
         ErrorNoHalt("[Horus] Invalid permission target")
         return {}
     end
+end
+
+-- Get all staff
+function horus:getstaff(level)
+    if not level then level = 0 end
+
+    local res = {}
+    for _, v in pairs(player.GetAll()) do
+        local rank = v:GetUserGroup()
+        if level <= 0 and horus.ranks[rank].ismod then table.insert(res, v) continue end
+        if level <= 1 and horus.ranks[rank].isadmin then table.insert(res, v) continue end
+        if level <= 2 and horus.ranks[rank].issuper then table.insert(res, v) continue end
+    end
+    return res
 end
 
 -- Update the rank of a player
