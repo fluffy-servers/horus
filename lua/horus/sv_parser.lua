@@ -144,6 +144,15 @@ function horus:runcmd(cmd, caller, args, silent)
         table.insert(handled, r)
     end
 
+    -- If there's any "extra" arguments and the last thing was a string, wack em on
+    if #args > #params then
+        if params[#params] == "string" then
+            for i=#params+1, #args do
+                handled[#handled] = handled[#handled] .. " " .. args[i]
+            end
+        end
+    end
+
     -- Result string substitution
     -- This is unpleasant code I know I'm sorry
     local success, msg = horus.commands[cmd].func(caller, unpack(handled))
