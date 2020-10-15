@@ -56,7 +56,7 @@ local function checkCanTargetTableOfPlayers(tbl, caller)
     return true
 end
 
-
+-- Return a single player
 horus.handlers["player_one"] = function(arg, caller)
     local res
     if arg == "" then
@@ -75,6 +75,25 @@ horus.handlers["player_one"] = function(arg, caller)
     return res[1]
 end
 
+-- Same as the above, but skips permission check
+horus.handlers["player_any"] = function(arg, caller)
+    local res
+    if arg == "" then
+        return false, "No target specified"
+    end
+
+    -- Run helper functions to find a target
+    if not res then res = checkSpecialTargets(arg, caller) end
+    if not res then res = checkIDTarget(arg, caller) end
+    if not res then res = findAllTargetablePlayers(arg, caller) end
+
+    -- Verify validity
+    if #res == 0 then return false, "No matching player found" end
+    if #res > 1 then return false, "More than one player matched!" end
+    return res[1]
+end
+
+-- Return a table of players
 horus.handlers["player_many"] = function(arg, caller)
     local res
     if arg == "" then
