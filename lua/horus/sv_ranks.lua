@@ -108,6 +108,26 @@ function horus:setrank(ply, rank)
     horus:sendperms(ply, rank)
 end
 
+-- Get more useful information about a command
+function horus:commandinfo(perm)
+    local command = horus.commands[perm]
+    if not command then return end
+
+    return {perm, command.args, command.help}
+end
+
+-- Build a client command table
+function horus:commandtable(perms)
+    local res = {}
+    for _,v in pairs(perms) do
+        local info = horus:commandinfo(v)
+        if info then
+            table.insert(res, info)
+        end
+    end
+    return res
+end
+
 -- Send permissions info to clients
 function horus:sendperms(ply, rank, isadmin, issuper)
     if !IsValid(ply) then return end
@@ -117,9 +137,9 @@ function horus:sendperms(ply, rank, isadmin, issuper)
     -- hi my name is Robert and I love edge cases
     local rank_table = {}
     if type(rank) == "string" then
-        rank_table = horus:allperms(rank)
+        rank_table = horus:commandtable(horus:allperms(rank))
     elseif type(rank) == "table" then
-        rank_table = rank
+        rank_table = horus:commandtable(rank)
     end
     
     -- Not sure why these parameters are important

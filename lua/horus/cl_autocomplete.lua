@@ -9,7 +9,12 @@ horus.autocompletes['player_one'] = function(arg)
     end
     return res
 end
+horus.autocompletes['player_any'] = horus.autocompletes['player_one']
 horus.autocompletes['player_many'] = horus.autocompletes['player_one']
+
+horus.autocompletes['boolean'] = function(arg)
+    return {"true", "false"}
+end
 
 function horus.consolecomplete(base, str, nospace)
     if SERVER then return end
@@ -23,8 +28,6 @@ function horus.consolecomplete(base, str, nospace)
     end
     local args = horus:split(str)
     local tbl = {}
-
-    PrintTable(args)
 
     -- First argument should be the name of the command
     if #args == 0 then
@@ -81,7 +84,6 @@ concommand.Add('hor_silent', command_silent, horus.consolecomplete, nil, FCVAR_U
 
 -- Autocomplete but for chatboxes
 hook.Add("StartChat", "HorusOpenChat", function()
-    print('Opened chat')
     horus.chatOpen = true
 end)
 
