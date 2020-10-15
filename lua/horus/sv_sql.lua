@@ -13,22 +13,23 @@ end
 function horus_sql:CreatePreparedQuery(id, query)
     if not self.PreparedQueries then self.PreparedQueries = {} end
     if not self.PreparedQueries[id] then
-        self.PreparedQueries[id] = db:prepare(query)
+        self.PreparedQueries[id] = self.Database:prepare(query)
     end
     return self.PreparedQueries[id]
 end
 
 -- Run a prepared query
 function horus_sql:RunPreparedQuery(id, callback, ...)
+    local args = { ... }
     local query = self:GetPreparedQuery(id)
     if not query then return end
 
     -- Set the arguments in the query
-    for i,v in ipairs(arg) do
+    for i,v in ipairs(args) do
         if type(v) == "string" then
-            q:setString(i, v)
+            query:setString(i, v)
         elseif type(v) == "number" then
-            q:setNumber(i, v)
+            query:setNumber(i, v)
         end
     end
 
@@ -41,10 +42,12 @@ end
 
 -- Run a raw SQL query string
 function horus_sql:RunRawQuery(string, callback)
-    local query = self.Databse:query(string)
+    local query = self.Database:query(string)
 
     function query:onSuccess(data)
-        callback(data)
+        if callback then
+            callback(data)
+        end
     end
     query:start()
     return query
@@ -96,6 +99,29 @@ end
 -- Check if the database is currently connected
 function horus_sql:IsConnected()
     return self.Connected
+end
+
+-- Create the default tables
+function horus_sql:CreateTables()
+    self:RunRawQuery([[
+        CREATE TABLE IF NOT EXISTS `horus_ranks` (
+            `rank` VARCHAR(50) NOT NULL,
+            `ismod` TINYINT(1) NOT NULL DEFAULT '0',
+            `isadmin` TINYINT(1) NOT NULL DEFAULT '0',
+            `issuper` TINYINT(1) NOT NULL DEFAULT '0',
+            `server` VARCHAR(50) NOT NULL,
+            PRIMARY KEY (`rank`)
+        )
+    ]])
+
+    self:RunRawQuery([[
+        CREATE TABLE IF NOT EXISTS `horus_perms` (
+	        `rank` VARCHAR(50) NOT NULL,
+	        `perm` VARCHAR(50) NOT NULL,
+	        `server` VARCHAR(50) NOT NULL,
+	        PRIMARY KEY (`rank`, `perm`)
+        )
+    ]])
 end
 
 -- Immediately attempt to connect to the database

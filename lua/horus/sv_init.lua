@@ -3,6 +3,7 @@ include('sv_sql.lua')
 include('sv_parser.lua')
 include('sv_ranks.lua')
 include('sv_discord.lua')
+include('sv_auth.lua')
 
 -- Shared files
 AddCSLuaFile("sh_auth.lua")

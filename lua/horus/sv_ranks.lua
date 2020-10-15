@@ -2,12 +2,13 @@ local config = horus.config.database
 horus.ranks = horus.ranks or {}
 
 -- Make sure that the "user" and "root" ranks always exist
-horus.ranks["user"] = {ismod = false, isadmin = false, issuper = false}
-horus.ranks["root"] = {ismod = true, isadmin = true, issuper = true}
+horus.ranks["user"] = {ismod = false, isadmin = false, issuper = false, perms = {}}
+horus.ranks["root"] = {ismod = true, isadmin = true, issuper = true, perms = {}}
 
 -- Given a player or rank, check if the target has the given permission
 -- This is a recursive function pls be careful
 function horus:permission(target, perm)
+    print(target, perm)
     if type(target) == "Player" then
         -- Get the rank of the player and check with that
         local rank = target:GetUserGroup()
@@ -29,7 +30,7 @@ function horus:permission(target, perm)
                 return horus:permission(horus.ranks[target].inherits, perm)
             end
 
-            -- Doesn"t have the permission and does not inherit any furhter
+            -- Doesn't have the permission and does not inherit any furhter
             return false
         end
     else
@@ -181,23 +182,3 @@ function horus:sendperms(ply, rank, isadmin, issuper)
         net.WriteBool(issuper)
     net.Send(ply)
 end
-
--- Load ranks on player connection
-hook.Add("PlayerInitialSpawn", "Horus_SendRank", function(ply)
-    if ply:IsListenServerHost() then
-        ply:SetUserGroup("root")
-        horus:sendperms(ply, "root")
-    else
-        -- TODO: Database
-        ply:SetUserGroup("user")
-        horus:sendperms(ply, "user")
-    end
-end)
-
--- On database connection, load all the rank data locally
-hook.Add("HorusDatabaseConnected", "Horus_LoadRanks", function()
-    -- TODO: Database
-end)
-
--- Remove default stuff
-hook.Remove("PlayerInitialSpawn", "PlayerAuthSpawn")
