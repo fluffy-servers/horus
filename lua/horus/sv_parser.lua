@@ -31,7 +31,7 @@ local function findAllTargetablePlayers(arg, caller)
     -- Find all targetable players with names that match
     local res = {}
     for k,v in pairs(player.GetAll()) do
-        if string.find(v:Nick():lower(), arg:lower()) and horus:cantarget(caller, v) then
+        if string.find(v:Nick():lower(), arg:lower(), 1, true) and horus:cantarget(caller, v) then
             table.insert(res, v)
         end
     end

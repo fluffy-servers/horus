@@ -3,7 +3,7 @@ horus.autocompletes = {}
 horus.autocompletes['player_one'] = function(arg)
     local res = {}
     for k,v in pairs(player.GetAll()) do
-        if string.find(v:Nick():lower() or '?', arg) then
+        if string.find(v:Nick():lower() or '?', arg, 1, true) then
             table.insert(res, '"' .. v:Nick() .. '"')
         end
     end
