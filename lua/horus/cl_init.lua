@@ -32,6 +32,8 @@ net.Receive('horus_message', function()
     local silent = net.ReadBool()
     local new = {}
 
+    PrintTable(msg)
+
     -- Add a silent tag if command silent
     if silent then
         table.insert(new, horus.colors.orange)
@@ -42,7 +44,7 @@ net.Receive('horus_message', function()
     -- Handle argument display
     for k,v in pairs(msg) do
         if type(v) == 'string' then
-            table.insert(new, color_white)
+            -- table.insert(new, color_white)
         end
 
         if type(v) == 'table' then

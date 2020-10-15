@@ -129,21 +129,33 @@ function horus:runcmd(cmd, caller, args, silent)
     -- This is unpleasant code I know I'm sorry
     local success, msg = horus.commands[cmd].func(caller, unpack(handled))
     if success and msg then
+        local i = 1
+        local res = {}
         msg = string.Explode(" ", msg)
         for k,v in pairs(msg) do
             if v == "%c" then
-                msg[k] = caller
+                if i > 1 then
+                    i = i + 1
+                end
+                res[i] = caller
+                i = i + 1
             elseif string.StartWith(v, "%") then
                 local n = tonumber(string.sub(v, 2))
-                msg[k] = handled[n]
+                if i > 1 then
+                    i = i + 2
+                end
+                res[i-1] = horus.colors.blue
+                res[i] = handled[n]
+                res[i+1] = color_white
+                i = i + 2
             else
-                msg[k] = " " .. v .. " "
+                res[i] = (res[i] or " ") .. v .. " "
             end
         end
 
         net.Start("horus_message")
         net.WriteEntity(caller)
-        net.WriteTable(msg)
+        net.WriteTable(res)
         net.WriteBool(silent)
 
         -- Broadcast to all players
