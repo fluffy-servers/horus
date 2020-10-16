@@ -2,9 +2,11 @@
 hook.Remove("PlayerInitialSpawn", "PlayerAuthSpawn")
 
 local function AuthenticateUser(data)
+    if #data < 1 then return end 
+
+    -- Global rank takes precedence
     local row = data[1]
     if #data == 2 then
-        -- Global rank takes precedence
         if data[1].server ~= "global" then
             row = data[2]
         end
@@ -18,6 +20,12 @@ end
 
 -- Load ranks on player connection
 hook.Add("PlayerInitialSpawn", "Horus_SendRank", function(ply)
+    -- Bots shouldn't have permissions - have you seen Terminator??
+    if ply:IsBot() then
+        ply:SetUserGroup("user")
+        return
+    end
+
     -- Listen server hosts get full perms by default
     if ply:IsListenServerHost() then
         ply:SetUserGroup("root")
