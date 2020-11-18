@@ -122,6 +122,7 @@ horus.handlers["boolean"] = function(arg, caller)
     return true, false
 end
 
+-- Return a rank
 horus.handlers["rank"] = function(arg, caller)
     arg = arg:lower()
     if horus.ranks[arg] then
@@ -132,6 +133,11 @@ horus.handlers["rank"] = function(arg, caller)
     end
 
     return false, "Rank does not exist"
+end
+
+-- Return a command/permission
+horus.handlers["permission"] = function(arg, caller)
+    return false, "Permission does not exist"
 end
 
 function horus:runcmd(cmd, caller, args, silent)

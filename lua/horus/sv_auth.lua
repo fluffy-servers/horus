@@ -53,7 +53,12 @@ local function LoadRanks(data)
         local ismod = rank.ismod == 1
         local isadmin = rank.isadmin == 1
         local issuper = rank.issuper == 1
-        horus.ranks[rank.rank] = {ismod = ismod, isadmin = isadmin, issuper = issuper, perms = {}}
+        horus.ranks[rank.rank] = {ismod = ismod, isadmin = isadmin, issuper = issuper, perms = {}, inherits=rank.inherits}
+
+        -- Mark global ranks as such so we don't alter them too badly
+        if rank.server == "global" then
+            horus.ranks[rank.rank].global = true
+        end
     end
 
     -- Now that the ranks table is created, fetch the permissions from the database

@@ -2,8 +2,8 @@ local config = horus.config.database
 horus.ranks = horus.ranks or {}
 
 -- Make sure that the "user" and "root" ranks always exist
-horus.ranks["user"] = {ismod = false, isadmin = false, issuper = false, perms = {}}
-horus.ranks["root"] = {ismod = true, isadmin = true, issuper = true, perms = {}}
+horus.ranks["user"] = {ismod = false, isadmin = false, issuper = false, perms = {}, global = true}
+horus.ranks["root"] = {ismod = true, isadmin = true, issuper = true, perms = {}, global = true}
 
 -- Given a player or rank, check if the target has the given permission
 -- This is a recursive function pls be careful
@@ -126,6 +126,37 @@ function horus:setrank(ply, rank)
     horus:sendperms(ply, rank)
 end
 
+-- Create a new rank
+function horus:createrank(rank, inherits)
+    -- Don't create ranks that already exist
+    if horus.ranks[rank] then return end
+
+    -- We have to inherit from something
+    if not horus.ranks[inherits] then return end
+
+    -- Add it to our local table
+    -- All flags init to false by default
+    horus.ranks[rank] = {ismod = false, isadmin = false, issuper = false, perms = {}, global = false, inherits = inherits}
+
+    -- Save to database
+    horus_sql:RunPreparedQuery("CreateRank", nil, rank, inherits, 0, 0, 0, horus.config.serverid)
+end
+
+-- Set a rank
+function horus:deleterank(rank)
+    -- We can't delete a rank that doesn't exist
+    if not horus.ranks[rank] then return end
+
+    -- We can't delete global ranks
+    if horus.ranks[rank].global then return end
+
+    -- Delete locally
+    horus.ranks[rank] = nil
+
+    -- Save to database
+    horus_sql:RunPreparedQuery("DeleteRank", rank, horus.config.serverid)
+end
+
 -- Get more useful information about a command
 function horus:commandinfo(perm)
     local command = horus.commands[perm]
@@ -191,4 +222,9 @@ hook.Add("HorusDatabaseConnected", "Horus_CreatePlayerRankQueries", function()
     -- Load from DB
     horus_sql:CreatePreparedQuery("LoadPlayerRank", "SELECT * FROM horus_users WHERE steamid64 = ? AND (server = ? OR server = 'global')")
     horus_sql:CreatePreparedQuery("SetPlayerRank", "INSERT INTO horus_users VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE rank = VALUES(rank)")
+    
+    horus_sql:CreatePreparedQuery("CreateRank", "INSERT INTO horus_ranks VALUES (?, ?, ?, ?, ?, ?)")
+    horus_sql:CreatePreparedQuery("DeleteRank", "DELETE FROM horus_ranks WHERE rank = ? AND server = ?")
+    horus_sql:CreatePreparedQuery("UpdateRankFlags", "UPDATE horus_ranks SET ismod=?, isadmin=?, issuper=? WHERE rank = ? AND server = ?")
+    horus_sql:CreatePreparedQuery("UpdateRankInherits", "UPDATE horus_ranks SET inherits=? WHERE rank = ? AND server = ?")
 end)
