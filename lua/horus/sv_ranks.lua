@@ -8,7 +8,6 @@ horus.ranks["root"] = {ismod = true, isadmin = true, issuper = true, perms = {}}
 -- Given a player or rank, check if the target has the given permission
 -- This is a recursive function pls be careful
 function horus:permission(target, perm)
-    print(target, perm)
     if type(target) == "Player" then
         -- Get the rank of the player and check with that
         local rank = target:GetUserGroup()

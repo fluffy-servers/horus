@@ -16,6 +16,16 @@ horus.autocompletes['boolean'] = function(arg)
     return {"true", "false"}
 end
 
+horus.autocompletes['rank'] = function(arg)
+    local res = {}
+    for k,v in pairs(horus.ranks) do
+        if string.find(k, arg, 1, true) then
+            table.insert(res, k)
+        end
+    end
+    return res
+end
+
 function horus.consolecomplete(base, str, nospace)
     if SERVER then return end
     if !horus.myperms then return {} end

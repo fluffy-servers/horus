@@ -115,10 +115,24 @@ horus.handlers["player_many"] = function(arg, caller)
     return res
 end
 
+-- Return true or false
+-- Defaults to true
 horus.handlers["boolean"] = function(arg, caller)
     if not arg or arg == "" then return nil, false end
     if arg == "0" or arg == "f" or arg == "false" then return false, false end
     return true, false
+end
+
+horus.handlers["rank"] = function(arg, caller)
+    arg = arg:lower()
+    if horus.ranks[arg] then
+        if not horus:cantarget(caller, arg) then
+            return false, "You cannot target this rank"
+        end
+        return arg, false
+    end
+
+    return false, "Rank does not exist"
 end
 
 function horus:runcmd(cmd, caller, args, silent)
@@ -192,7 +206,7 @@ function horus:runcmd(cmd, caller, args, silent)
             net.Broadcast()
         end
     elseif msg then
-        caller:ChatPrint(msg)
+        horus:senderror(caller, msg)
     end
 end
 
