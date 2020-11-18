@@ -1,4 +1,9 @@
-horus.command("tp", "Teleport a player to where you are looking", {"player_one:player"}, function(caller, target)
+horus.command("tp", "Teleport a player to where you are looking", {"player_any:player"}, function(caller, target)
+    if #target > 1 then
+        return false, "More than one player matched"
+    end
+    target = target[1]
+
     local tr = util.TraceHull({
         start = caller:GetShootPos(),
         endpos = caller:GetShootPos() + caller:EyeAngles():Forward() * 4096,

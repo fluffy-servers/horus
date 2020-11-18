@@ -88,8 +88,7 @@ horus.handlers["player_any"] = function(arg, caller)
 
     -- Verify validity
     if #res == 0 then return false, "No matching player found" end
-    if #res > 1 then return false, "More than one player matched!" end
-    return res[1]
+    return res
 end
 
 -- Return a table of players
