@@ -21,10 +21,23 @@ horus.command("rankremove", "Remove a rank", {"rank:rank"}, function(caller, ran
     horus:deleterank(rank)
 end)
 
-horus.command("rankaddperm", "Add a permission to a rank", {"rank:rank", "permission:permission"}, function(caller, rank)
+horus.command("rankaddperm", "Add a permission to a rank", {"rank:rank", "permission:permission", "..."}, function(caller, rank)
 
 end)
 
-horus.command("rankremoveperm", "Remove a permission from a rank", {"rank:rank", "permission:permission"}, function(caller, rank)
+horus.command("rankremoveperm", "Remove a permission from a rank", {"rank:rank", "permission:permission", "..."}, function(caller, rank)
 
+end)
+
+horus.command("who", "List all players on the server, and their ranks", {}, function(caller, rank)
+    if not IsValid(caller) then return end
+    local tbl = {}
+    for k, v in pairs(player.GetAll()) do
+        tbl[v] = v:GetUserGroup()
+    end
+
+    net.Start("horus_table")
+        net.WriteString("Current players:")
+        net.WriteTable(tbl)
+    net.Send(caller)
 end)

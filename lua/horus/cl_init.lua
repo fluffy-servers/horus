@@ -80,6 +80,20 @@ net.Receive('horus_message', function()
     chat.AddText(unpack(new))
 end)
 
+-- Handle display of Horus data tables
+-- ideally these would be displayed in a menu or something
+-- but chat commands are neat
+net.Receive('horus_table', function()
+    local header = net.ReadString()
+    local tbl = net.ReadTable()
+
+    chat.AddText(Color(255, 255, 255), header)
+    for k, v in pairs(data) do
+        chat.AddText("\t", k, color_white, string.rep(" "), 40 - #k:Nick(), v)
+    end
+end)
+
+-- Handle display of Horus errors
 net.Receive('horus_error', function()
     chat.AddText(unpack(net.ReadTable()))
 end)
